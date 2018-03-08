@@ -36,17 +36,27 @@ rooms = ["ha", "lo", "di", "ki", "ba", "co", "bi", "li", "st"]
 cards = suspects + weapons + rooms
 
 def getPairNumFromNames(player,card):
-    return getPairNumFromPositions(extendedPlayers.index(player),
-                                   cards.index(card))
+	return getPairNumFromPositions(extendedPlayers.index(player),cards.index(card))
 
 def getPairNumFromPositions(player,card):
     return player*len(cards) + card + 1
-
+    
+def dropItem(arr, item):
+	x = arr[:]
+	x.remove(item)
+	return x
+	
 # TO BE IMPLEMENTED AS AN EXERCISE  
-def hand(player,cards):
+def hand(player,p_cards):
     clauses = []
-    for card in cards:
-       clauses.append(-getPairNumFromNames(player,card))
+    for card in p_cards:
+       clauses.append([getPairNumFromNames(player,card)])
+       clauses.append([-getPairNumFromNames(caseFile,card)])
+    c = cards[:]
+    for x in p_cards:
+		c.remove(x)
+    for x in c:
+		clauses.append([-getPairNumFromNames(player, x)])
     return clauses 
 
 # TO BE IMPLEMENTED AS AN EXERCISE
@@ -59,25 +69,77 @@ def initialClauses():
 
     # A card cannot be in two places.
     for p in extendedPlayers:
-		currList = extendedPlayers[:]
-		currList.remove(p)
+		currList = dropItem(extendedPlayers,p)
 		for c in cards:
-			clauses.append([-getPairNumFromNames(p,c)].append([-getPairNumFromNames(p,c) for q in currList]))
-
-
+			for q in currList:
+				clauses.append([-getPairNumFromNames(p,c),-getPairNumFromNames(q,c)])
+				
     # At least one card of each category is in the case file.
-
+    clauses.append([getPairNumFromNames(caseFile,c) for c in suspects])
+    clauses.append([getPairNumFromNames(caseFile,c) for c in weapons])
+    clauses.append([getPairNumFromNames(caseFile,c) for c in rooms]) 
+    
     # No two cards in each category can both be in the case file.
-
+    for c in cards:
+		p = caseFile
+		if c in suspects:
+			currList = dropItem(suspects, c)
+			for q in currList:
+				clauses.append([-getPairNumFromNames(p,c),-getPairNumFromNames(p,q)])
+		if c in weapons:
+			currList = dropItem(weapons, c)
+			for q in currList:
+				clauses.append([-getPairNumFromNames(p,c),-getPairNumFromNames(p,q)])
+		if c in rooms:
+			currList = dropItem(rooms, c)
+			for q in currList:
+				clauses.append([-getPairNumFromNames(p,c),-getPairNumFromNames(p,q)])
     return clauses
-
+ 
+def getPlayerList(suggester, refuter):
+	p = []
+	index1 = players.index(suggester)+1
+	index2 = players.index(refuter)
+	if (index1<=index2):
+		p = players[index1:index2]
+	else:
+		p = players[index1:]
+		for q in players[:index2]:
+			p.append(q)
+	return p
 # TO BE IMPLEMENTED AS AN EXERCISE  
 def suggest(suggester,card1,card2,card3,refuter,cardShown):
-    return []
+	c = [card1,card2,card3]
+	clauses = []
+	if refuter != None:
+		index1 = players.index(suggester)+1
+		index2 = players.index(refuter)
+		p = getPlayerList(suggester, refuter)
+		for q in p:
+			for z in c:
+				clauses.append([-getPairNumFromNames(q,z)])
+	if cardShown != None and refuter != None:
+		clauses.append([getPairNumFromNames(refuter,cardShown)])
+	elif cardShown == None and refuter != None:
+		clauses.append([getPairNumFromNames(refuter,z) for z in c])
+	elif cardShown == None and refuter == None:
+		for q in dropItem(players,suggester):
+			for z in c:
+				clauses.append([-getPairNumFromNames(q,z)])
+	return clauses
 
 # TO BE IMPLEMENTED AS AN EXERCISE  
 def accuse(accuser,card1,card2,card3,isCorrect):
-    return []
+	clauses = []
+	c = [card1,card2,card3]
+	for x in c:
+		clauses.append([-getPairNumFromNames(accuser, x)])
+	if isCorrect:
+		for x in c:
+			clauses.append([getPairNumFromNames(caseFile, x)])
+	else:
+		clauses.append([-getPairNumFromNames(caseFile,x) for x in c])
+	return clauses
 
 def query(player,card,clauses):
     return SATSolver.testLiteral(getPairNumFromNames(player,card),clauses)
@@ -138,5 +200,5 @@ def playClue():
     printNotepad(clauses)
 
 if __name__ == '__main__':
-    #playClue()
-    print(initialClauses())
+    playClue()
+    
