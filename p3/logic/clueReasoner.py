@@ -36,9 +36,6 @@ rooms = ["ha", "lo", "di", "ki", "ba", "co", "bi", "li", "st"]
 cards = suspects + weapons + rooms
 
 def getPairNumFromNames(player,card):
-	if player == None or card == None:
-		print "Error"
-		exit(0)
 	return getPairNumFromPositions(extendedPlayers.index(player),cards.index(card))
 
 def getPairNumFromPositions(player,card):
@@ -69,26 +66,19 @@ def initialClauses():
     # Each card is in at least one place (including case file).
     for c in cards:
         clauses.append([getPairNumFromNames(p,c) for p in extendedPlayers])
-    if None in clauses:
-		print "error1"
-		exit(0)
+
     # A card cannot be in two places.
     for p in extendedPlayers:
 		currList = dropItem(extendedPlayers,p)
 		for c in cards:
 			for q in currList:
 				clauses.append([-getPairNumFromNames(p,c),-getPairNumFromNames(q,c)])
-
-    if None in clauses:
-		print "error2"
-		exit(0)
+				
     # At least one card of each category is in the case file.
     clauses.append([getPairNumFromNames(caseFile,c) for c in suspects])
     clauses.append([getPairNumFromNames(caseFile,c) for c in weapons])
-    clauses.append([getPairNumFromNames(caseFile,c) for c in rooms])
-    if None in clauses:
-		print "error3"
-		exit(0)   
+    clauses.append([getPairNumFromNames(caseFile,c) for c in rooms]) 
+    
     # No two cards in each category can both be in the case file.
     for c in cards:
 		p = caseFile
@@ -104,9 +94,6 @@ def initialClauses():
 			currList = dropItem(rooms, c)
 			for q in currList:
 				clauses.append([-getPairNumFromNames(p,c),-getPairNumFromNames(p,q)])
-    '''if None in clauses:
-		print "error4"
-		exit(0)'''
     return clauses
  
 def getPlayerList(suggester, refuter):
@@ -177,7 +164,6 @@ def printNotepad(clauses):
 
 def playClue():
     clauses = initialClauses()
-    #clauses=[]
     clauses.extend(hand("sc",["wh", "li", "st"]))
     clauses.extend(suggest("sc", "sc", "ro", "lo", "mu", "sc"))
     clauses.extend(suggest("mu", "pe", "pi", "di", "pe", None))
@@ -215,3 +201,4 @@ def playClue():
 
 if __name__ == '__main__':
     playClue()
+    
