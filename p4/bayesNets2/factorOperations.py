@@ -98,10 +98,28 @@ def joinFactors(factors):
                     "\nappear in more than one input factor.\n" + 
                     "Input factors: \n" +
                     "\n".join(map(str, factors)))
-
-
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    newConditionedVars = set()
+    newUnconditionedVars = set()
+    for f in factors:
+        for c in f.conditionedVariables():
+            newConditionedVars.add(c)
+        for u in f.unconditionedVariables():
+            newUnconditionedVars.add(u)
+            
+    for u in newUnconditionedVars:
+        if u in newConditionedVars:
+            newConditionedVars.remove(u)
+            
+    NewFactor = Factor(newUnconditionedVars, newConditionedVars, factors[0].variableDomainsDict())
+    
+    for d in NewFactor.getAllPossibleAssignmentDicts():
+        prob = 1
+        for f in factors:
+            prob = prob*Factor.getProbability(f, d)
+        NewFactor.setProbability(d,prob)
+    
+    return NewFactor
 
 
 def eliminateWithCallTracking(callTrackingList=None):
