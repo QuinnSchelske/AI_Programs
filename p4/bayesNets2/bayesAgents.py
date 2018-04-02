@@ -91,18 +91,17 @@ def constructBayesNet(gameState):
       constants defined at the top of this file.
     """
 
-	
+    edges = [(X_POS_VAR, FOOD_HOUSE_VAR),(Y_POS_VAR, FOOD_HOUSE_VAR),(X_POS_VAR,GHOST_HOUSE_VAR),(Y_POS_VAR, GHOST_HOUSE_VAR)]
+    variableDomainsDict = {FOOD_HOUSE_VAR:HOUSE_VALS, GHOST_HOUSE_VAR:HOUSE_VALS, X_POS_VAR:X_POS_VALS
+    , Y_POS_VAR:Y_POS_VALS}
     obsVars = []
     for housePos in gameState.getPossibleHouses():
        for obsPos in gameState.getHouseWalls(housePos):
             obsVar = OBS_VAR_TEMPLATE % obsPos
             obsVars.append(obsVar)
-    edges = [(X_POS_VAR, FOOD_HOUSE_VAR),(Y_POS_VAR, FOOD_HOUSE_VAR),(X_POS_VAR,GHOST_HOUSE_VAR),(Y_POS_VAR, GHOST_HOUSE_VAR)]
-    for obs in obsVars:
-		edges.append((FOOD_HOUSE_VAR, obs))
-		edges.append((GHOST_HOUSE_VAR, obs))
-    variableDomainsDict = {FOOD_HOUSE_VAR:HOUSE_VALS, GHOST_HOUSE_VAR:HOUSE_VALS, X_POS_VAR:X_POS_VALS
-    , Y_POS_VAR:Y_POS_VALS, OBS_VAR_TEMPLATE:OBS_VALS}
+            variableDomainsDict[obsVar] = OBS_VALS
+            edges.append((FOOD_HOUSE_VAR, obsVar))
+            edges.append((GHOST_HOUSE_VAR, obsVar))
 
     "*** YOUR CODE HERE ***"
 
@@ -242,7 +241,6 @@ def fillObsCPT(bayesNet, gameState):
 					factor.setProbability(assdict, none)
 
 			bayesNet.setCPT(obsVar, factor)
-    
 
 
 def getMostLikelyFoodHousePosition(evidence, bayesNet, eliminationOrder):
