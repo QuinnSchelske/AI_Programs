@@ -30,6 +30,7 @@ import mdp, util
 
 from learningAgents import ValueEstimationAgent
 import collections
+import time
 
 class ValueIterationAgent(ValueEstimationAgent):
     """
@@ -187,4 +188,37 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        states = self.mdp.getStates()
+        
+        predecessors = {}
+        for s in states:
+            predecessors[s] = set()  
+        for s1 in states:
+			for a in self.mdp.getPossibleActions(s1):
+				for post, prob in self.mdp.getTransitionStatesAndProbs(s1, a):
+					if prob > 0:
+						predecessors[post].add(s1)
+        priQue = util.PriorityQueue()
+        for s in states:
+			if not self.mdp.isTerminal(s):
+				v = self.values[s]
+				highQ = max(self.computeQValueFromValues(s,a) for a in self.mdp.getPossibleActions(s))
+				diff = abs(v - highQ)
+				priQue.push(s, -diff)
+        for i in range(self.iterations):
+			if priQue.isEmpty():
+				return
+			s = priQue.pop()
+			self.values[s] = max(self.computeQValueFromValues(s,a) for a in self.mdp.getPossibleActions(s))
+			for p in list(predecessors[s]):
+				if not self.mdp.isTerminal(p):
+					curVal = self.values[p]
+					highQ = max(self.computeQValueFromValues(p,a) for a in self.mdp.getPossibleActions(p))
+					diff = abs(curVal - highQ)
+					if diff > self.theta:
+						priQue.update(p, -diff)
+					
+			
+        
+        
 
