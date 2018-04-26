@@ -119,7 +119,6 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
                 bestAccuracyCount = accuracyCount
             # end of automatic tuning loop
         self.prior, self.conditionalProb, self.k = bestParams
-
         
     def classify(self, testData):
         """
@@ -163,8 +162,13 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         Note: you may find 'self.features' a useful way to loop through all possible features
         """
         featuresOdds = []
+        oddsVals = []
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-        
+        for feature in self.features:
+			odds = self.conditionalProb[feature, label1] / self.conditionalProb[feature, label2]
+			oddsVals.append((odds,feature))
+			
+        oddsVals.sort()
+        for i in range(99):
+			featuresOdds.append(oddsVals[i][1])
         return featuresOdds
