@@ -53,9 +53,17 @@ class PerceptronClassifier:
 
         for iteration in range(self.max_iterations):
             print "Starting iteration ", iteration, "..."
+            
             for i in range(len(trainingData)):
-                "*** YOUR CODE HERE ***"
-                util.raiseNotDefined()
+				vectors = util.Counter()
+				for l in self.legalLabels:
+					vectors[l] = self.weights[l] * trainingData[i]
+				yPrime = vectors.argMax()
+				yStar = trainingLabels[i]
+				if yPrime != yStar:
+					self.weights[yStar] += trainingData[i]
+					self.weights[yPrime] -= trainingData[i]
+                
 
     def classify(self, data ):
         """
@@ -73,13 +81,23 @@ class PerceptronClassifier:
         return guesses
 
 
-    def findHighWeightFeatures(self, label):
+    def findHighOddsFeatures(self, label1, label2):
         """
-        Returns a list of the 100 features with the greatest weight for some label
+        Returns a list of the 100 features with the greatest difference in weights:
+			w_lable1 - w_label2
         """
-        featuresWeights = []
+        featuresOdds = []
+        diffVals = []
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for feature in self.features:
+			wlabel1 = self.weights[label1][feature]
+			wlabel2 = self.weights[label2][feature]
+			diff = wlabel1 - wlabel2
+			diffVals.append((diff,feature))
+			
+        diffVals.sort()
+        for i in range(99):
+			featuresOdds.append(diffVals[i][1])
 
-        return featuresWeights
+        return featuresOdds
