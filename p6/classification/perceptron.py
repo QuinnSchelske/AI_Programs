@@ -84,11 +84,20 @@ class PerceptronClassifier:
     def findHighOddsFeatures(self, label1, label2):
         """
         Returns a list of the 100 features with the greatest difference in weights:
-			w_lable1 - w_lable2
+			w_lable1 - w_label2
         """
         featuresOdds = []
+        diffVals = []
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for feature in self.features:
+			wlabel1 = self.weights[label1][feature]
+			wlabel2 = self.weights[label2][feature]
+			diff = wlabel1 - wlabel2
+			diffVals.append((diff,feature))
+			
+        diffVals.sort()
+        for i in range(99):
+			featuresOdds.append(diffVals[i][1])
 
         return featuresOdds
