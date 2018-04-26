@@ -55,8 +55,10 @@ class PerceptronClassifier:
             print "Starting iteration ", iteration, "..."
             
             for i in range(len(trainingData)):
-				guesses = self.classify(trainingData)
-				yPrime = guesses[i]
+				vectors = util.Counter()
+				for l in self.legalLabels:
+					vectors[l] = self.weights[l] * trainingData[i]
+				yPrime = vectors.argMax()
 				yStar = trainingLabels[i]
 				if yPrime != yStar:
 					self.weights[yStar] += trainingData[i]
